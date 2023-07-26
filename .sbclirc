@@ -1,0 +1,3 @@
+(setf *hist-file* "/Users/deriamis/.sbcli_history")
+(setf *pygmentize* "/Users/deriamis/.local/bin/pygmentize")
+

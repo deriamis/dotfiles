@@ -1,0 +1,53 @@
+# Modified command aliases
+if command -v colordiff &>/dev/null; then
+  alias diff='colordiff'
+fi
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias more='less'
+alias df='df -h'
+alias du='du -c -h'
+alias nano='nano -w'
+alias ping='ping -c 5'
+alias ..='cd ..'
+alias -- -='cd -'
+alias nohup='nohup '
+if command -v nvim &>/dev/null; then
+  alias vim='nvim'
+fi
+alias emacs='emacsclient '
+
+if command -v bat &>/dev/null; then
+  alias cat='bat'
+fi
+
+# New command aliases
+alias ls='ls -hF --color=auto'
+alias lr='ls -R --color=auto'
+alias ll='ls -la --color=auto'
+alias la='ls -A --color=auto'
+alias lx='ls -BX --color=auto'
+alias lz='ls -eS --color=auto'
+alias lt='ls -rt --color=auto'
+alias l='ls -CF --color=auto'
+alias lsd='ls --color=auto -d *(-/DN)'
+alias lm='la | more'
+alias dir='ls --format-vertical --color=auto'
+alias vdir='ls --format-long --color=auto'
+
+# Safety aliases
+alias cp='cp -i'
+alias mv='mv -i'
+alias rm='rm -I'
+alias ln='ln -i'
+alias mkdir='mkdir -p -v'
+alias chown='chown --preserve-root'
+alias chmod='chmod --preserve-root'
+alias chgrp='chgrp --preserve-root'
+
+# Add a command for the .dotfiles repo
+alias dotfiles='git  --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+
+# vim: set filetype=sh :
+

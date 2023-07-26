@@ -1,0 +1,191 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "version": 2,
+  "final_space": true,
+  "console_title_template": "{{if .Root}}root :: {{end}}{{.Shell}} :: {{.Folder}}",
+  "blocks": [
+    {
+      "type": "rprompt",
+      "alignment": "right",
+      "segments": [
+        {
+          "type": "exit",
+          "style": "diamond",
+          "foreground": "#303030",
+          "background": "transparent",
+          "template": "{{ if gt .Code 0 }}<#dc322f>\ue0b2</><#303030,#dc322f> \u2718 {{ .Code }} \ue0b2{{ else }}</><#303030>\ue0b2</><#859900,#303030> \u2713 </><#7e8082,#303030>\ue0b3</>{{ end }}",
+          "properties": {
+            "always_enabled": true
+          }
+        },
+        {
+          "type": "node",
+          "style": "diamond",
+          "foreground": "#6CA35E",
+          "background": "#303030",
+          "template": " \ue718 {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }}<#7e8082>\ue0b3</>",
+          "properties": {
+            "fetch_version": false
+          }
+        },
+        {
+          "type": "ruby",
+          "style": "diamond",
+          "foreground": "#9b111e",
+          "background": "#303030",
+          "template": " \ue791 {{ if .Error}}<#dc322f>{{ .Error }}{{ else }}{{ .Full }}{{ end }}"
+        },
+        {
+          "type": "python",
+          "style": "diamond",
+          "foreground": "#268bd2",
+          "background": "#303030",
+          "template": " {{ if .Error }}<#dc322f>{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }}{{ end }} <#859900>\ue235</> <#7e8082>\ue0b3</>",
+          "properties": {
+	          "home_enabled": true
+          }
+        },
+        {
+          "type": "go",
+          "style": "powerline",
+          "foreground": "#7FD5EA",
+          "background": "#303030",
+          "template": " \ufcd1{{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }}<#7e8082> \ue0b3</>",
+          "properties": {
+            "fetch_version": false
+          }
+        },
+        {
+          "type": "dotnet",
+          "style": "diamond",
+          "foreground": "#3891A6",
+          "background": "#303030",
+          "template": " \ue77f {{ if .Unsupported }}\uf071{{ else }}{{ .Full }}{{ end }}<#7e8082>\ue0b3</>",
+          "properties": {
+            "fetch_version": false
+          }
+        },
+        {
+          "type": "executiontime",
+          "style": "plain",
+          "foreground": "#657b83",
+          "background": "#303030",
+          "template": " {{ .FormattedMs }}<#268bd2> \uf252 <#7e8082>\ue0b3</>",
+          "properties": {
+            "style": "roundrock",
+            "threshold": 500
+          }
+        },
+        {
+          "type": "session",
+          "style": "diamond",
+          "foreground": "#657b83",
+          "background": "#303030",
+          "template": "{{ if .SSHSession }} {{ if .Root }}<#dc322f>{{ end }}{{ .UserName }}<#657b83>@{{ .HostName }} <#7e8082>\ue0b3{{ end }}"
+        },
+        {
+          "type": "time",
+          "style": "diamond",
+          "foreground": "#657b83",
+          "background": "#303030",
+          "trailing_diamond": "\u2593\u2592\u2591",
+          "template": " {{ .CurrentDate | date .Format }}<#268bd2> \uf64f </>",
+          "properties": {
+            "time_format": "15:04:05"
+          }
+        }
+      ]
+    },
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "segments": [
+        {
+          "type": "os",
+          "style": "diamond",
+          "foreground": "#fdf6e3",
+          "background": "#303030",
+          "leading_diamond": "\u2591\u2592\u2593",
+          "template": " {{ if .WSL }}WSL at {{ end }}{{.Icon}}</> "
+        },
+        {
+          "type": "text",
+          "style": "diamond",
+          "powerline_symbol": "\ue0b0",
+          "foreground": "#657b83",
+          "background": "#303030",
+          "template": "{{ if not .Root }}\ue0b1{{ else }}<#303030,#dc322f>\ue0b0</><#fafafa,#dc322f> \uf0e7 </><#dc322f,#303030>\ue0b0{{end}}"
+        },
+        {
+          "type": "path",
+          "style": "powerline",
+          "foreground": "#657b83",
+          "background": "#303030",
+          "template": " {{ if or (eq (dir .Location) \"/home\") (eq (dir .Location) \"/Users\") (eq (dir .Location) \"C:\\\\Users\") }}<#2aa196>\uf015</> ~{{ if not (eq (base .Location) .UserName) }}{{ path .Folder .Location }}{{ end }}{{ else if or (glob \".bzr\") (glob \".citc\") (glob \".git\") (glob \".hg\") (glob \".node-version\") (glob \".python-version\") (glob \".go-version\") (glob \".ruby-version\") (glob \".lua-version\") (glob \".lua-version\") (glob \".java-version\") (glob \".perl-version\") (glob \".php-version\") (glob \".ruby-version\") (glob \".tool-version\") (glob \".tool-versions\") (glob \".svn\") (glob \".terraform\") (glob \"CVS\") (glob \"Cargo.toml\") (glob \"composer.json\") (glob \"go.mod\") (glob \"Gopkg.yml\") (glob \"stack.yaml\") (glob \"*.csproj\") (glob \"*.fsproj\") (glob \"*.xproj\") (glob \"mix.exs\") (glob \"rebar.config\") (glob \"erlang.mk\") (glob \"pom.xml\") (glob \"build.gradle\") (glob \"build.sbt\") (glob \"deps.edn\") (glob \"project.clj\") (glob \"build.boot\") (glob \"Project.toml\") (glob \"Manifest.toml\") (glob \".luacheckrc\") (glob \".stylua.toml\") (glob \"selene.toml\") (glob \"package.json\") (glob \"dune\") (glob \"dune-project\") (glob \"jbuild\") (glob \".merlin\") (glob \"pyproject.toml\") (glob \"setup.py\") (glob \"Pipfile\") (glob \"meson.build\") (glob \"SConstruct\") (glob \"Makefile.PL\") (glob \"Build.PL\") (glob \"META.json\") (glob \"Gemfile\") }}<#268bd2>\u27bc</> {{ path .Folder .Location }}{{ else }}{{ path .Path .Location }}{{ end }} ",
+          "properties": {
+            "home_icon": "<#2aa198>\uf015</> ~",
+            "style": "full",
+            "mapped_locations_enabled": true,
+            "mapped_locations": {
+              "/home/deriamis": "<#2aa198>\uf015</> ~"
+            }
+          }
+        },
+        {
+          "type": "path",
+          "style": "powerline",
+          "foreground": "#657b83",
+          "background": "#303030",
+          "template": "{{ if not .Writable }}<#303030,#dc322f>\ue0b0</><#fafafa,#dc322f> \udb80\ude50 </><#dc322f,#303030>\ue0b0{{ end }}"
+        },
+        {
+          "type": "git",
+          "style": "powerline",
+          "foreground": "#859900",
+          "background": "#303030",
+          "template": "<#657b83>\ue0b1</> <#268bd2>{{ url .UpstreamIcon .UpstreamURL }}</> {{ .HEAD }}{{ if regexMatch \"(^|[[:space:]]+)(wip|WIP)[[:alnum:]]*($[[:space:]]*)\" .Commit.Subject }}<#b58900>wip</> {{ end }} {{ .BranchStatus }} {{ if gt .StashCount 0 }}\uf0193{{ .StashCount }}{{ end }}{{ if .Working.Changed }}\uf044{{ if gt .Working.Unmerged 0 }}<#dc322f>~{{ .Working.Unmerged }}</>{{ end }}{{ if gt .Working.Added 0 }}+{{ .Working.Added }}{{ end }}{{ if gt .Working.Deleted 0 }}-{{ .Working.Deleted }}{{ end }}{{ if gt .Working.Modified 0 }}<#b58900>!{{ .Working.Modified }}</>{{ end }}{{ if gt .Working.Untracked 0 }}<#268bd2>?{{ .Working.Untracked }}</>{{ end }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} | {{ end }}{{ if .Staging.Changed }}\uf046{{ if gt .Staging.Unmerged 0 }}<#dc322f>~{{ .Staging.Unmerged }}</>{{ end }}{{ if gt .Staging.Added 0 }}+{{ .Staging.Added }}{{ end }}{{ if gt .Staging.Deleted 0 }}-{{ .Staging.Deleted }}{{ end }}{{ if gt .Staging.Modified 0 }}<#b58900>!{{ .Staging.Modified }}</>{{ end }}{{ if gt .Staging.Untracked 0 }}<#268bd2>?{{ .Staging.Untracked }}</>{{ end }}{{ end }}",
+          "properties": {
+            "fetch_status": true,
+            "fetch_stash_count": true,
+            "fetch_upstream_icon": true,
+            "fetch_worktree_count": true,
+            "branch_ahead_icon": "\u21e1",
+            "branch_behind_icon": "\u21e3",
+            "status_formats": {
+              "Added": "+",
+              "Deleted": "-",
+              "Modified": "!",
+              "Unmerged": "~",
+              "Untracked": "?"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "style": "diamond",
+          "foreground": "#303030",
+	        "background": "transparent",
+          "template": "\ue0b0"
+        },
+        {
+          "type": "exit",
+          "style": "diamond",
+          "foreground": "#859900",
+          "foreground_templates": [
+            "{{ if gt .Code 0 }}#dc322f{{ end }}"
+          ],
+          "background": "transparent",
+          "template": "❯",
+          "properties": {
+            "always_enabled": true
+          }
+	      }
+      ]
+    }
+  ],
+  "transient_prompt": {
+    "foreground": "#7e8082",
+    "background": "transparent",
+    "template": "<#303030>\u2591\u2592\u2593<#fdf6e3,#303030> \uea82</><#7e8082,#303030> \ue0b1 {{ .Segments.Time.CurrentDate | date .Segments.Time.Format }} \ue0b1 $SHLVL:{{ .PromptCount }} \ue0b1</>{{ if .Root }}<#dc322f,#303030> \uf0e7 {{ else }}<#2aa198,#303030>{{ end }} {{ .UserName }}<#2aa198,#303030>@{{ .HostName }}</><#7e8082,#303030>  <#b58900,#303030>{{ .PWD }} </><#303030>\ue0b0 </>{{ if .Root }}#{{ else if eq .Shell \"zsh\" }}%%{{ else }}${{ end }} "
+  }
+}
