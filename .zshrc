@@ -26,6 +26,9 @@ setopt SHARE_HISTORY BANG_HIST HIST_IGNORE_SPACE
 setopt HIST_REDUCE_BLANKS HIST_VERIFY HIST_LEX_WORDS
 setopt EXTENDED_GLOB
 
+# Location where to store temporary files specific to zsh
+ZSH_CACHE_DIR=~/.cache/zsh
+
 # Uncomment the following line to use case-sensitive completion.
 CASE_SENSITIVE="true"
 
@@ -61,14 +64,29 @@ COMPLETION_WAITING_DOTS="true"
 # The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 HIST_STAMPS="mm/dd/yyyy"
 
-# Add ASDF completions
-fpath=(~/.asdf/completions ${fpath})
+# Ensure the completions cache is available
+mkdir -p "${ZSH_CACHE_DIR}/completions"
 
-# Load Antigen
-source ~/.antigen.zsh
+# Clone antidote if necessary.
+[[ -e ${ZDOTDIR:-~}/.antidote ]] ||
+  git clone https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote
 
-# Load Antigen configurations
-antigen init ~/.antigenrc
+zsh_plugins=${ZDOTDIR:-~}/.zsh_plugins.zsh
+
+# Ensure the plugins conf exists
+[[ -f ${zsh_plugins:r}.conf ]] || touch ${zsh_plugins:r}.conf
+
+# Add completions
+fpath+=(~/.asdf/completions ${ZDOTDIR:-~}/.antidote)
+autoload -Uz $fpath[-1]/antidote
+
+# Generate static file in a subshell when .zsh_plugins.conf is updated.
+if [[ ! $zsh_plugins -nt ${zsh_plugins:r}.conf ]]; then
+  (antidote bundle <${zsh_plugins:r}.conf >|$zsh_plugins)
+fi
+
+# Initialize antidote
+source $zsh_plugins
 
 # Drop-to-bash when needed
 bash() {
