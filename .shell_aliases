@@ -49,10 +49,5 @@ alias chgrp='chgrp --preserve-root'
 # Add a command for the .dotfiles repo
 alias dotfiles='git  --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
-# Make sure meld works as a command on MacOS
-if grep -q "Darwin" <(uname -o) && open -Ra Meld; then
-  alias meld='open -Wa Meld'
-fi
-
 # vim: set filetype=sh :
 

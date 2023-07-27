@@ -52,17 +52,22 @@
 [filter "indent"]
   clean = indent
   smudge = cat
+[diff]
+  tool = meld
+[difftool]
+  prompt = false
+[difftool "meld"]
+  trustExitCode = true
+  cmd = open -Wa Meld --args \"$LOCAL\" \"$PWD/$REMOTE\"
 [merge]
   tool = meld
   conflictstyle = diff3
   renamelimit = 11412
+[mergetool]
+  prompt = false
 [mergetool "meld"]
-    # Choose one of these 2 lines (not both!) explained below.
-    #cmd = meld "$LOCAL" "$MERGED" "$REMOTE" --output "$MERGED"
-  cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
-#[mergetool "diffmerge"]
-#    cmd = "diffmerge --merge --result=\"$MERGED\" \"$LOCAL\" \"$(if test -f \"$BASE\"; then echo \"$BASE\"; else echo \"$LOCAL\"; fi)\" \"$REMOTE\""
-#    trustExitCode = true
+  trustExitCode = true
+  cmd = open -Wa Meld --args --auto-merge \"$PWD/$LOCAL\" \"$PWD/$BASE\" \"$PWD/$REMOTE\" --output=\"$PWD/$MERGED\"
 [push]
   default = simple
 [receive]
