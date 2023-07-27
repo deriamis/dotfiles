@@ -65,6 +65,7 @@
   renamelimit = 11412
 [mergetool]
   prompt = false
+  keepBackup = false
 [mergetool "meld"]
   trustExitCode = true
   cmd = open -Wa Meld --args --auto-merge \"$PWD/$LOCAL\" \"$PWD/$BASE\" \"$PWD/$REMOTE\" --output=\"$PWD/$MERGED\"
