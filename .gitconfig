@@ -1,61 +1,61 @@
 [core]
-	editor = vim
-	pager = less -F -XR -x4 -M -i
+  editor = vim
+  pager = less -F -XR -x4 -M -i
   autocrlf = false
-	whitespace = blank-at-eol,blank-at-eof,space-before-tab,-indent-with-non-tab,tab-in-indent,-cr-at-eol
-	fileMode = false
+  whitespace = blank-at-eol,blank-at-eof,space-before-tab,-indent-with-non-tab,tab-in-indent,-cr-at-eol
+  fileMode = false
 [alias]
   dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
-	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-	lc = log --decorate --color --oneline --branches --remotes=backup --not --remotes 
-	st = status
-	ts = status
-	ci = commit
-	br = branch
-	co = checkout
-	undo = reset --hard
-	unstage = reset HEAD --
-	diffstat = diff -w --ignore-space-at-eol --stat -r
-	logme = log --author='$USER' --since='2 weeks ago'
-	distclean = clean -f -d -x
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+  lc = log --decorate --color --oneline --branches --remotes=backup --not --remotes 
+  st = status
+  ts = status
+  ci = commit
+  br = branch
+  co = checkout
+  undo = reset --hard
+  unstage = reset HEAD --
+  diffstat = diff -w --ignore-space-at-eol --stat -r
+  logme = log --author='$USER' --since='2 weeks ago'
+  distclean = clean -f -d -x
 [color]
-	branch = auto
-	diff = auto
-	status = auto
-	ui = auto
+  branch = auto
+  diff = auto
+  status = auto
+  ui = auto
 [color "branch"]
-	current = yellow reverse
-	local = yellow
-	remote = green
+  current = yellow reverse
+  local = yellow
+  remote = green
 [color "diff"]
-	meta = yellow bold
-	frag = magenta bold
-	old = red bold
-	new = green bold
-	whitespace = red reverse
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+  whitespace = red reverse
 [color "status"]
-	added = yellow
-	changed = green
-	untracked = cyan
+  added = yellow
+  changed = green
+  untracked = cyan
 [filter "spacify"]
   clean = expand --initial -t 4
   smudge = expand --initial -t 4
-	required
+  required
 [filter "spaces2tabs"]
-	clean = unexpand --first-only -t 4
-	smudge = expand --initial -t 4
-	required
+  clean = unexpand --first-only -t 4
+  smudge = expand --initial -t 4
+  required
 [filter "tabs2spaces"]
-	clean = expand --initial -t 4
-	smudge = unexpand --first-only -t 4
-	required
+  clean = expand --initial -t 4
+  smudge = unexpand --first-only -t 4
+  required
 [filter "indent"]
-	clean = indent
+  clean = indent
   smudge = cat
 [merge]
   tool = meld
-	conflictstyle = diff3
-	renamelimit = 11412
+  conflictstyle = diff3
+  renamelimit = 11412
 [mergetool "meld"]
     # Choose one of these 2 lines (not both!) explained below.
     #cmd = meld "$LOCAL" "$MERGED" "$REMOTE" --output "$MERGED"
@@ -64,14 +64,14 @@
 #    cmd = "diffmerge --merge --result=\"$MERGED\" \"$LOCAL\" \"$(if test -f \"$BASE\"; then echo \"$BASE\"; else echo \"$LOCAL\"; fi)\" \"$REMOTE\""
 #    trustExitCode = true
 [push]
-	default = simple
+  default = simple
 [receive]
-	denyCurrentBranch = warn
+  denyCurrentBranch = warn
 [branch]
-	autosetupmerge = true
+  autosetupmerge = true
 [pull]
-	rebase = true
+  rebase = true
 [init]
-	defaultBranch = main
+  defaultBranch = main
 [commit]
-	gpgsign = true
+  gpgsign = true
