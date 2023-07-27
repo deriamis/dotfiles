@@ -19,18 +19,6 @@ ssh() {
   set_title $HOST
 }
 
-devget() {
-  echo -e "\nGetting from devdesktop:~/${1} to ${2}\n"
-  $(which scp) -r "devdesktop:~/${1}" "${2}";
-  echo
-}
-
-devput() {
-  echo -e "\nPutting ${1} to devdesktop:~/${2}\n"
-  $(which scp) -r "${1}" "devdesktop:~/${2}";
-  echo
-}
-
 ciphers() {
   local OPENSSL=$(which openssl)
 
