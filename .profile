@@ -184,7 +184,7 @@ if [[ -e ~/.asdf/asdf.sh ]]; then
     # Erlang
     if [[ -d ~/.asdf/plugins/erlang ]]; then
       export KERL_BUILD_DOCS=yes
-      if command -v rebar3 &>/dev/null; then
+      if [[ -x ~/.cache/rebar3/bin/rebar3 ]]; then
         PATH="${HOME}/.cache/rebar3/bin:${PATH}"
       fi
     fi
