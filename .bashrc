@@ -77,6 +77,16 @@ if [[ $ENV_ANONYMIZE != 1 ]]; then
         eval "$(oh-my-posh completion bash)"
     fi
 
+    # Load lefthook completions
+    if command -v lefthook &>/dev/null; then
+        eval "$(lefthook completion bash)"
+    fi
+
+    # Load pmv completions
+    if command -v pmv &>/dev/null; then
+        eval "$(pmv completion bash)"
+    fi
+
     # Enable iTerm2 integrations
     if [[ -e "${HOME}/.iterm2_shell_integration.${SHELL##*/}" ]]; then
       source "${HOME}/.iterm2_shell_integration.${SHELL##*/}"

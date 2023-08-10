@@ -107,6 +107,16 @@ if command -v oh-my-posh &>/dev/null; then
     eval "$(oh-my-posh completion zsh)"
 fi
 
+# Load lefthook completions
+if command -v lefthook &>/dev/null; then
+    eval "$(lefthook completion zsh)"
+fi
+
+# Load pmv completions
+if command -v pmv &>/dev/null; then
+    eval "$(pmv completion zsh)"
+fi
+
 # Enable iTerm2 integrations
 if [[ -e "${HOME}/.iterm2_shell_integration.${SHELL##*/}" ]]; then
   source "${HOME}/.iterm2_shell_integration.${SHELL##*/}"
