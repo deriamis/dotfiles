@@ -81,9 +81,9 @@
   defaultBranch = main
 [commit]
   gpgsign = true
-[url "git@github.com:"]
-	insteadOf = https://github.com/
-[url "git@gitlab.com:"]
-	insteadOf = https://gitlab.com/
-[url "git@gitlab.org:"]
-	insteadOf = https://gitlab.org/
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
