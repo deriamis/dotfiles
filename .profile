@@ -103,17 +103,17 @@ tapme() {
       ;;
     Darwin)
       notify_cmd=(
-        terminal-notifier
-        -title "${icon} ${title}"
-        -subtitle "Exited with return code ${res}"
-        -message "${message}"
-        -execute "open -t ${logfile}"
-      )
-      ;;
-  esac
+      terminal-notifier
+      -title "${icon} ${title}"
+      -subtitle "Exited with return code ${res}"
+      -message "${message}"
+      -execute "open -t ${logfile}"
+    )
+    ;;
+esac
 
-  "${notify_cmd[@]}" || true
-  return ${res}
+"${notify_cmd[@]}" || true
+return ${res}
 }
 
 # Add some XDG_* variables that don't get set
@@ -121,6 +121,10 @@ if [[ -x /usr/bin/loginctl ]]; then
   export XDG_SESSION_ID=$(loginctl -l -P Sessions show-user "${USER}")
   export XDG_VTNR=$(loginctl -l -P VTNr show-session ${XDG_SESSION_ID})
   export XDG_SEAT=$(loginctl -l -P Seat show-session ${XDG_SESSION_ID})
+fi
+
+if [[ $(uname -s) == Darwin ]]; then
+  export SSH_AUTH_SOCK=~/.ssh/agent.sock
 fi
 
 # Activate Homebrew
@@ -209,7 +213,7 @@ fi
 
 # Set up the OCaml programming language
 if command -v opam &>/dev/null; then
-    eval $(opam env)
+  eval $(opam env)
 fi
 
 # Set up Haskell
@@ -220,7 +224,7 @@ if [[ -d ~/.cabal ]]; then
   PATH="${HOME}/.cabal/bin:$PATH"
 fi
 if command -v ghcup >/dev/null; then
-    alias ghcup='OPT=/usr/bin/opt-12 LLC=/usr/bin/llc-12 ghcup '
+  alias ghcup='OPT=/usr/bin/opt-12 LLC=/usr/bin/llc-12 ghcup '
 fi
 
 # Add homedir binaries to $PATH

@@ -117,6 +117,21 @@ if command -v pmv &>/dev/null; then
     eval "$(pmv completion zsh)"
 fi
 
+# Load k9s completions
+if command -v k9s &>/dev/null; then
+    eval "$(k9s completion zsh)"
+fi
+
+# Load eksctl completions
+if command -v eksctl &>/dev/null; then
+    eval "$(eksctl completion zsh)"
+fi
+
+# Load kubectl completions
+if command -v kubectl &>/dev/null; then
+    eval "$(kubectl completion zsh)"
+fi
+
 # Enable iTerm2 integrations
 if [[ -e "${HOME}/.iterm2_shell_integration.${SHELL##*/}" ]]; then
   source "${HOME}/.iterm2_shell_integration.${SHELL##*/}"
