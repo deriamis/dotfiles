@@ -123,9 +123,10 @@ if [[ -x /usr/bin/loginctl ]]; then
   export XDG_SEAT=$(loginctl -l -P Seat show-session ${XDG_SESSION_ID})
 fi
 
-if [[ $(uname -s) == Darwin ]]; then
-  export SSH_AUTH_SOCK=~/.ssh/agent.sock
-fi
+# Set up GPG SSH Agent
+export GPG_TTY="$(tty)"
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+gpgconf --launch gpg-agent
 
 # Activate Homebrew
 if [[ -d /opt/homebrew ]]; then
@@ -147,9 +148,12 @@ if command -v bat &>/dev/null; then
   }
 fi
 
-# Add .NET tools to $PATH
-if [[ -d ~/.dotnet ]]; then
-  PATH="~/.dotnet/tools:$PATH"
+# Add .NET to $PATH
+if [[ -d /opt/local/share/dotnet ]]; then
+  export DOTNET_ROOT="/opt/local/share/dotnet"
+fi
+if [[ -d ~/.dotnet/tools ]]; then
+  PATH="${HOME}/.dotnet/tools:$PATH"
 fi
 
 # Set up ASDF (Python, Ruby, Node.js)
@@ -180,8 +184,11 @@ if [[ -e ~/.asdf/asdf.sh ]]; then
     # Node.js
     if [[ -d ~/.asdf/plugins/nodejs ]]; then
       # Set up Yarn packager for NPM
-      if [[ -d ~/.yarn ]]; then
-        PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+      if [[ -d ~/.config/yarn/global/node_modules/.bin ]]; then
+        PATH="$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+      fi
+      if [[ -d ~/.yarn/bin ]]; then
+        PATH="$HOME/.yarn/bin:$PATH"
       fi
     fi
 
@@ -203,11 +210,12 @@ fi
 if command -v go &>/dev/null; then
   export GOPATH="${HOME}/go"
   export GOBIN="${HOME}/.local/share/go/bin"
-  PATH="${GOBIN}:${GOPATH}/bin:${PATH}"
+  [[ -d ${GOPATH}/bin ]] && PATH="${GOPATH}/bin:${PATH}"
+  [[ -d ${GOBIN} ]] && PATH="${GOBIN}:${PATH}"
 fi
 
 # Set up Roswell lisp scripting environment
-if command -v ros &>/dev/null; then
+if [[ -d ~/.roswell/bin ]] && command -v ros &>/dev/null; then
   PATH="${HOME}/.roswell/bin:${PATH}"
 fi
 
@@ -217,18 +225,21 @@ if command -v opam &>/dev/null; then
 fi
 
 # Set up Haskell
-if [[ -d ~/.ghcup ]]; then
+if [[ -d ~/.ghcup/bin ]]; then
   PATH="${HOME}/.ghcup/bin:$PATH:"
 fi
-if [[ -d ~/.cabal ]]; then
+if [[ -d ~/.cabal/bin ]]; then
   PATH="${HOME}/.cabal/bin:$PATH"
 fi
-if command -v ghcup >/dev/null; then
-  alias ghcup='OPT=/usr/bin/opt-12 LLC=/usr/bin/llc-12 ghcup '
+
+# Set up Teleport
+if command -v tsh &>/dev/null; then
+  export TELEPORT_ADD_KEYS_TO_AGENT=no
 fi
 
 # Add homedir binaries to $PATH
-PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+[[ -d ~/bin ]] && PATH="$HOME/bin:$PATH"
+[[ -d ~/.local/bin ]] && PATH="$HOME/.local/bin:$PATH"
 
 # Shell modifications
 [[ -x $(which lesspipe.sh) ]] && eval "$(SHELL=${SHELL} lesspipe.sh)"
