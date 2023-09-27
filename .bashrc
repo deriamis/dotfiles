@@ -77,6 +77,11 @@ if [[ $ENV_ANONYMIZE != 1 ]]; then
         eval "$(oh-my-posh completion bash)"
     fi
 
+    # Load rtx completions
+    if command -v rtx &>/dev/null; then
+        eval "$(rtx completion bash)"
+    fi
+
     # Load lefthook completions
     if command -v lefthook &>/dev/null; then
         eval "$(lefthook completion bash)"

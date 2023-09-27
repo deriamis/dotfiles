@@ -112,8 +112,8 @@ tapme() {
     ;;
 esac
 
-"${notify_cmd[@]}" || true
-return ${res}
+  "${notify_cmd[@]}" || true
+  return ${res}
 }
 
 # Add some XDG_* variables that don't get set
@@ -160,8 +160,33 @@ if [[ -d ~/.dotnet/tools ]]; then
   PATH="${HOME}/.dotnet/tools:$PATH"
 fi
 
+# Set up RTX (Python, Ruby, Node.js)
+if command -v rtx &>/dev/null; then
+  if [[ ${SHELL} =~ /bash[[:digit:]]*$ ]]; then
+    eval "$(rtx activate bash)"
+  elif [[ ${SHELL} =~ /zsh[[:digit:]]* ]]; then
+    eval "$(rtx activate zsh)"
+  fi
+
+  # Ruby programming language
+  if rtx which ruby &>/dev/null; then
+      PATH="$(gem env | grep 'USER INSTALLATION DIRECTORY' | /usr/bin/awk -F': ' '{print $2}')/bin:$PATH"
+  fi
+
+  # Perl programming language
+  if rtx which perl &>/dev/null; then
+    if perl -e "use local::lib" &>/dev/null; then
+      eval "$(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)" >/dev/null
+    fi
+  fi
+
+  # Erlang
+  if rtx which erl &>/dev/null; then
+    export KERL_BUILD_DOCS=yes
+  fi
+
 # Set up ASDF (Python, Ruby, Node.js)
-if [[ -e ~/.asdf/asdf.sh ]]; then
+elif [[ -e ~/.asdf/asdf.sh ]]; then
   source ~/.asdf/asdf.sh
 
     # Java programming language
@@ -185,24 +210,23 @@ if [[ -e ~/.asdf/asdf.sh ]]; then
       fi
     fi
 
-    # Node.js
-    if [[ -d ~/.asdf/plugins/nodejs ]]; then
-      # Set up Yarn packager for NPM
-      if [[ -d ~/.config/yarn/global/node_modules/.bin ]]; then
-        PATH="$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-      fi
-      if [[ -d ~/.yarn/bin ]]; then
-        PATH="$HOME/.yarn/bin:$PATH"
-      fi
-    fi
-
     # Erlang
     if [[ -d ~/.asdf/plugins/erlang ]]; then
       export KERL_BUILD_DOCS=yes
-      if [[ -x ~/.cache/rebar3/bin/rebar3 ]]; then
-        PATH="${HOME}/.cache/rebar3/bin:${PATH}"
-      fi
     fi
+fi
+
+# Set up Yarn packager for NPM
+if [[ -d ~/.config/yarn/global/node_modules/.bin ]]; then
+  PATH="$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+fi
+if [[ -d ~/.yarn/bin ]]; then
+  PATH="$HOME/.yarn/bin:$PATH"
+fi
+
+# Set up rebar3 for Erlang
+if [[ -x ~/.cache/rebar3/bin/rebar3 ]]; then
+  PATH="${HOME}/.cache/rebar3/bin:${PATH}"
 fi
 
 # Set up cargo for Rust

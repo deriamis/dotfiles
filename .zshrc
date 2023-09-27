@@ -69,7 +69,7 @@ mkdir -p "${ZSH_CACHE_DIR}/completions"
 
 # Clone antidote if necessary.
 [[ -e ${ZDOTDIR:-~}/.antidote ]] ||
-  git clone https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote
+    git clone https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote
 
 zsh_plugins=${ZDOTDIR:-~}/.zsh_plugins.zsh
 
@@ -82,7 +82,7 @@ autoload -Uz $fpath[-1]/antidote
 
 # Generate static file in a subshell when .zsh_plugins.conf is updated.
 if [[ ! $zsh_plugins -nt ${zsh_plugins:r}.conf ]]; then
-  (antidote bundle <${zsh_plugins:r}.conf >|$zsh_plugins)
+    (antidote bundle <${zsh_plugins:r}.conf >|$zsh_plugins)
 fi
 
 # Initialize antidote
@@ -99,12 +99,17 @@ bash() {
         SHELL="$(whence -p bash)" \
         SHLVL=$SHLVL \
         $(whence -p bash) "$@"
-}
+    }
 
 # Load oh-my-posh
 if command -v oh-my-posh &>/dev/null; then
     eval "$(oh-my-posh init zsh --config ~/.poshthemes/powerlevel10k_poweruser.omp.json)"
     eval "$(oh-my-posh completion zsh)"
+fi
+
+# Load rtx completions
+if command -v rtx &>/dev/null; then
+    eval "$(rtx completion bash)"
 fi
 
 # Load lefthook completions
@@ -134,7 +139,7 @@ fi
 
 # Enable iTerm2 integrations
 if [[ -e "${HOME}/.iterm2_shell_integration.${SHELL##*/}" ]]; then
-  source "${HOME}/.iterm2_shell_integration.${SHELL##*/}"
+    source "${HOME}/.iterm2_shell_integration.${SHELL##*/}"
 fi
 
 [[ -r ~/.shell_aliases ]] && source ~/.shell_aliases
