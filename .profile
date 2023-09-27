@@ -132,16 +132,22 @@ else
   gpgconf --launch gpg-agent
 fi
 
+export PATH MANPATH INFOPATH
+
 # Activate Homebrew
 if [[ -d /opt/homebrew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+  export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+  export HOMEBREW_REPOSITORY="/opt/homebrew";
+  PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
+  MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
+  INFOPATH="/opt/homebrew/share/info${INFOPATH+:$INFOPATH}";
 fi
 
 # Add MacPorts to $PATH
 if [[ -d /opt/local ]]; then
-  PATH="/opt/local/bin:/opt/local/sbin:/opt/local/libexec/gnubin:$PATH"
-  MANPATH="/opt/local/share/man:$MANPATH"
-  INFOPATH="/opt/local/share/info:$INFOPATH"
+  PATH="/opt/local/bin:/opt/local/sbin:/opt/local/libexec/gnubin${PATH+:$PATH}"
+  MANPATH="/opt/local/share/man${MANPATH+:$MANPATH}"
+  INFOPATH="/opt/local/share/info${INFOPATH+:$INFOPATH}"
 fi
 
 if command -v bat &>/dev/null; then
@@ -158,62 +164,6 @@ if [[ -d /opt/local/share/dotnet ]]; then
 fi
 if [[ -d ~/.dotnet/tools ]]; then
   PATH="${HOME}/.dotnet/tools:$PATH"
-fi
-
-# Set up RTX (Python, Ruby, Node.js)
-if command -v rtx &>/dev/null; then
-  if [[ ${SHELL} =~ /bash[[:digit:]]*$ ]]; then
-    eval "$(rtx activate bash)"
-  elif [[ ${SHELL} =~ /zsh[[:digit:]]* ]]; then
-    eval "$(rtx activate zsh)"
-  fi
-
-  # Ruby programming language
-  if rtx which ruby &>/dev/null; then
-      PATH="$(gem env | grep 'USER INSTALLATION DIRECTORY' | /usr/bin/awk -F': ' '{print $2}')/bin:$PATH"
-  fi
-
-  # Perl programming language
-  if rtx which perl &>/dev/null; then
-    if perl -e "use local::lib" &>/dev/null; then
-      eval "$(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)" >/dev/null
-    fi
-  fi
-
-  # Erlang
-  if rtx which erl &>/dev/null; then
-    export KERL_BUILD_DOCS=yes
-  fi
-
-# Set up ASDF (Python, Ruby, Node.js)
-elif [[ -e ~/.asdf/asdf.sh ]]; then
-  source ~/.asdf/asdf.sh
-
-    # Java programming language
-    if [[ -d ~/.asdf/plugins/java ]]; then
-      if [[ ${SHELL} =~ /bash[[:digit:]]*$ ]]; then
-        source ~/.asdf/plugins/java/set-java-home.bash
-      elif [[ ${SHELL} =~ /zsh[[:digit:]]* ]]; then
-        source ~/.asdf/plugins/java/set-java-home.zsh
-      fi
-    fi
-
-    # Ruby programming language
-    if [[ -d ~/.asdf/plugins/ruby ]]; then
-      PATH="$(gem env | grep 'USER INSTALLATION DIRECTORY' | /usr/bin/awk -F': ' '{print $2}')/bin:$PATH"
-    fi
-
-    # Perl programming language
-    if [[ -d ~/.asdf/plugins/perl ]]; then
-      if perl -e "use local::lib" &>/dev/null; then
-        eval "$(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)" >/dev/null
-      fi
-    fi
-
-    # Erlang
-    if [[ -d ~/.asdf/plugins/erlang ]]; then
-      export KERL_BUILD_DOCS=yes
-    fi
 fi
 
 # Set up Yarn packager for NPM
@@ -249,7 +199,10 @@ fi
 
 # Set up the OCaml programming language
 if command -v opam &>/dev/null; then
-  eval $(opam env)
+  export OPAM_SWITCH_PREFIX='/Users/deriamis/.opam/default'
+  export CAML_LD_LIBRARY_PATH='/Users/deriamis/.opam/default/lib/stublibs:/Users/deriamis/.opam/default/lib/ocaml/stublibs:/Users/deriamis/.opam/default/lib/ocaml'
+  export OCAML_TOPLEVEL_PATH='/Users/deriamis/.opam/default/lib/toplevel'
+  PATH="/Users/deriamis/.opam/default/bin${PATH+:$PATH}"
 fi
 
 # Set up Haskell
@@ -265,27 +218,35 @@ if command -v tsh &>/dev/null; then
   export TELEPORT_ADD_KEYS_TO_AGENT=no
 fi
 
+# Add Rancher Desktop to PATH
+if [[ -d ~/.rd/bin ]]; then
+  PATH="${HOME}/.rd/bin:$PATH"
+fi
+
 # Add homedir binaries to $PATH
 [[ -d ~/bin ]] && PATH="$HOME/bin:$PATH"
 [[ -d ~/.local/bin ]] && PATH="$HOME/.local/bin:$PATH"
 
-# Shell modifications
-[[ -x $(which lesspipe.sh) ]] && eval "$(SHELL=${SHELL} lesspipe.sh)"
-if [[ -r ~/.dircolors ]] && command -v dircolors &>/dev/null; then
-  eval "$(dircolors -b ~/.dircolors)"
+# Make less more friendly for non-text input files, see lesspipe(1)
+if [[ -x $(which lesspipe.sh) ]]; then
+  export LESSOPEN="|/opt/local/bin/lesspipe.sh %s"
+  export LESS_ADVANCED_PREPROCESSOR=1
 fi
 
-# Make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
 # Set up the Travis gem
-[[ -f $HOME/.travis/travis.sh ]] && source $HOME/.travis/travis.sh
+if [[ -f $HOME/.travis/travis.sh ]]; then
+  source $HOME/.travis/travis.sh
+fi
 
 # Initialize the Fuzzy Finder
-[ -f ~/.fzf.${SHELL##*/} ] && source ~/.fzf.${SHELL##*/}
+if [[ -f ~/.fzf.${SHELL##*/} ]]; then
+  source ~/.fzf.${SHELL##*/}
+fi
 
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-[[ -e ~/.private_env ]] && source ~/.private_env
+if [[ -e ~/.private_env ]]; then
+  source ~/.private_env
+fi
 

@@ -101,45 +101,98 @@ bash() {
         $(whence -p bash) "$@"
     }
 
+# Set up RTX (Python, Ruby, Node.js)
+if command -v rtx &>/dev/null; then
+  _evalcache rtx activate zsh >/dev/null
+
+  # Ruby programming language
+  if rtx which ruby &>/dev/null; then
+      PATH="$(gem env | grep 'USER INSTALLATION DIRECTORY' | /usr/bin/awk -F': ' '{print $2}')/bin:$PATH"
+  fi
+
+  # Perl programming language
+  if rtx which perl &>/dev/null; then
+    if perl -e "use local::lib" &>/dev/null; then
+      _evalcache perl -I ~/perl5/lib/perl5/ -Mlocal::lib >/dev/null
+    fi
+  fi
+
+  # Erlang
+  if rtx which erl &>/dev/null; then
+    export KERL_BUILD_DOCS=yes
+  fi
+
+# Set up ASDF (Python, Ruby, Node.js)
+elif [[ -e ~/.asdf/asdf.sh ]]; then
+  source ~/.asdf/asdf.sh
+
+    # Java programming language
+    if [[ -d ~/.asdf/plugins/java ]]; then
+      source ~/.asdf/plugins/java/set-java-home.zsh
+    fi
+
+    # Ruby programming language
+    if [[ -d ~/.asdf/plugins/ruby ]]; then
+      PATH="$(gem env | grep 'USER INSTALLATION DIRECTORY' | /usr/bin/awk -F': ' '{print $2}')/bin:$PATH"
+    fi
+
+    # Perl programming language
+    if [[ -d ~/.asdf/plugins/perl ]]; then
+      if perl -e "use local::lib" &>/dev/null; then
+        _evalcache perl -I ~/perl5/lib/perl5/ -Mlocal::lib >/dev/null
+      fi
+    fi
+
+    # Erlang
+    if [[ -d ~/.asdf/plugins/erlang ]]; then
+      export KERL_BUILD_DOCS=yes
+    fi
+fi
+
 # Load oh-my-posh
 if command -v oh-my-posh &>/dev/null; then
-    eval "$(oh-my-posh init zsh --config ~/.poshthemes/powerlevel10k_poweruser.omp.json)"
-    eval "$(oh-my-posh completion zsh)"
+    _evalcache oh-my-posh init zsh --config ~/.poshthemes/powerlevel10k_poweruser.omp.json >/dev/null
+    _evalcache oh-my-posh completion zsh >/dev/null
 fi
 
 # Load rtx completions
 if command -v rtx &>/dev/null; then
-    eval "$(rtx completion bash)"
+    _evalcache rtx completion zsh >/dev/null
 fi
 
 # Load lefthook completions
 if command -v lefthook &>/dev/null; then
-    eval "$(lefthook completion zsh)"
+    _evalcache lefthook completion zsh >/dev/null
 fi
 
 # Load pmv completions
 if command -v pmv &>/dev/null; then
-    eval "$(pmv completion zsh)"
+    _evalcache pmv completion zsh >/dev/null
 fi
 
 # Load k9s completions
 if command -v k9s &>/dev/null; then
-    eval "$(k9s completion zsh)"
+    _evalcache k9s completion zsh >/dev/null
 fi
 
 # Load eksctl completions
 if command -v eksctl &>/dev/null; then
-    eval "$(eksctl completion zsh)"
+    _evalcache eksctl completion zsh >/dev/null
 fi
 
 # Load kubectl completions
 if command -v kubectl &>/dev/null; then
-    eval "$(kubectl completion zsh)"
+    _evalcache kubectl completion zsh >/dev/null
+fi
+
+# Enable dircolors scheme
+if [[ -r ~/.dircolors ]] && command -v dircolors &>/dev/null; then
+  _evalcache dircolors -b ~/.dircolors >/dev/null
 fi
 
 # Enable iTerm2 integrations
-if [[ -e "${HOME}/.iterm2_shell_integration.${SHELL##*/}" ]]; then
-    source "${HOME}/.iterm2_shell_integration.${SHELL##*/}"
+if [[ -e ~/.iterm2_shell_integration.zsh ]]; then
+    source ~/.iterm2_shell_integration.zsh >/dev/null
 fi
 
 [[ -r ~/.shell_aliases ]] && source ~/.shell_aliases

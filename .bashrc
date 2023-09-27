@@ -70,6 +70,54 @@ if [[ $ENV_ANONYMIZE != 1 ]]; then
             . ~/.asdf/completions/asdf.bash
         fi
     fi
+    
+    # Set up RTX (Python, Ruby, Node.js)
+    if command -v rtx &>/dev/null; then
+      eval "$(rtx activate bash)"
+    
+      # Ruby programming language
+      if rtx which ruby &>/dev/null; then
+          PATH="$(gem env | grep 'USER INSTALLATION DIRECTORY' | /usr/bin/awk -F': ' '{print $2}')/bin:$PATH"
+      fi
+    
+      # Perl programming language
+      if rtx which perl &>/dev/null; then
+        if perl -e "use local::lib" &>/dev/null; then
+          eval "$(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)" >/dev/null
+        fi
+      fi
+    
+      # Erlang
+      if rtx which erl &>/dev/null; then
+        export KERL_BUILD_DOCS=yes
+      fi
+    
+    # Set up ASDF (Python, Ruby, Node.js)
+    elif [[ -e ~/.asdf/asdf.sh ]]; then
+      source ~/.asdf/asdf.sh
+    
+        # Java programming language
+        if [[ -d ~/.asdf/plugins/java ]]; then
+          source ~/.asdf/plugins/java/set-java-home.bash
+        fi
+    
+        # Ruby programming language
+        if [[ -d ~/.asdf/plugins/ruby ]]; then
+          PATH="$(gem env | grep 'USER INSTALLATION DIRECTORY' | /usr/bin/awk -F': ' '{print $2}')/bin:$PATH"
+        fi
+    
+        # Perl programming language
+        if [[ -d ~/.asdf/plugins/perl ]]; then
+          if perl -e "use local::lib" &>/dev/null; then
+            eval "$(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)" >/dev/null
+          fi
+        fi
+    
+        # Erlang
+        if [[ -d ~/.asdf/plugins/erlang ]]; then
+          export KERL_BUILD_DOCS=yes
+        fi
+    fi
 
     # Load oh-my-posh
     if command -v oh-my-posh &>/dev/null; then
@@ -107,9 +155,14 @@ if [[ $ENV_ANONYMIZE != 1 ]]; then
         eval "$(kubectl completion bash)"
     fi
 
+    # Enable dircolors scheme
+    if [[ -r ~/.dircolors ]] && command -v dircolors &>/dev/null; then
+      eval "$(dircolors -b ~/.dircolors)"
+    fi
+
     # Enable iTerm2 integrations
-    if [[ -e "${HOME}/.iterm2_shell_integration.${SHELL##*/}" ]]; then
-        source "${HOME}/.iterm2_shell_integration.${SHELL##*/}"
+    if [[ -e ~/.iterm2_shell_integration.bash ]]; then
+        source ~/.iterm2_shell_integration.bash
     fi
 fi
 
