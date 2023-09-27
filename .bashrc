@@ -1,13 +1,3 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
-
-# If not running interactively, don't do anything
-case $- in
-    *i*) ;;
-    *) return;;
-esac
-
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
@@ -54,6 +44,22 @@ else
     PS1='\u@\h:\w\$ '
 fi
 unset color_prompt force_color_prompt
+
+# Activate Homebrew
+if [[ -d /opt/homebrew ]]; then
+  export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+  export HOMEBREW_REPOSITORY="/opt/homebrew";
+  PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
+  MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
+  INFOPATH="/opt/homebrew/share/info${INFOPATH+:$INFOPATH}";
+fi
+
+# Add MacPorts to $PATH
+if [[ -d /opt/local ]]; then
+  PATH="/opt/local/bin:/opt/local/sbin:/opt/local/libexec/gnubin${PATH+:$PATH}"
+  MANPATH="/opt/local/share/man${MANPATH+:$MANPATH}"
+  INFOPATH="/opt/local/share/info${INFOPATH+:$INFOPATH}"
+fi
 
 # Don't load the fancy stuff if we've dropped to Bash for copypasta purposes
 if [[ $ENV_ANONYMIZE != 1 ]]; then
@@ -165,6 +171,10 @@ if [[ $ENV_ANONYMIZE != 1 ]]; then
         source ~/.iterm2_shell_integration.bash
     fi
 fi
+
+# Add homedir binaries to $PATH
+[[ -d ~/bin ]] && PATH="$HOME/bin:$PATH"
+[[ -d ~/.local/bin ]] && PATH="$HOME/.local/bin:$PATH"
 
 [[ -r ~/.shell_aliases ]] && source ~/.shell_aliases
 

@@ -1,20 +1,3 @@
-if [[ $- != *i* ]]; then
-    # Shell is non-interactive. Be done now!
-    return
-fi
-
-if [[ -o login ]]; then
-    BASE_SHLVL=$SHLVL
-else
-    BASE_SHLVL=1
-fi
-
-zsh_show_shlvl_color() {
-    local -a color=( 'red' 'green' 'yellow' 'blue' 'magenta' 'cyan' 'white')
-    local color_id=$(( ($SHLVL - $BASE_SHLVL) % ${#color}))
-    echo "${color[$color_id]}"
-}
-
 # Set up history
 export HISTFILE=~/.zsh_history
 export HISTSIZE=100000
@@ -94,12 +77,28 @@ bash() {
         ENV_ANONYMIZE=1 \
         HOME="$HOME" \
         LC_CTYPE="${LC_ALL:-${LC_CTYPE:-$LANG}}" \
-        PATH="$PATH" \
+        PATH="/usr/local/bin:/usr/bin" \
         USER="$USER" \
         SHELL="$(whence -p bash)" \
-        SHLVL=$SHLVL \
+        SHLVL=$(( SHLVL - 1 )) \
         $(whence -p bash) "$@"
     }
+
+# Activate Homebrew
+if [[ -d /opt/homebrew ]]; then
+  export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+  export HOMEBREW_REPOSITORY="/opt/homebrew";
+  PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
+  MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
+  INFOPATH="/opt/homebrew/share/info${INFOPATH+:$INFOPATH}";
+fi
+
+# Add MacPorts to $PATH
+if [[ -d /opt/local ]]; then
+  PATH="/opt/local/bin:/opt/local/sbin:/opt/local/libexec/gnubin${PATH+:$PATH}"
+  MANPATH="/opt/local/share/man${MANPATH+:$MANPATH}"
+  INFOPATH="/opt/local/share/info${INFOPATH+:$INFOPATH}"
+fi
 
 # Set up RTX (Python, Ruby, Node.js)
 if command -v rtx &>/dev/null; then
@@ -194,6 +193,10 @@ fi
 if [[ -e ~/.iterm2_shell_integration.zsh ]]; then
     source ~/.iterm2_shell_integration.zsh >/dev/null
 fi
+
+# Add homedir binaries to $PATH
+[[ -d ~/bin ]] && PATH="$HOME/bin:$PATH"
+[[ -d ~/.local/bin ]] && PATH="$HOME/.local/bin:$PATH"
 
 [[ -r ~/.shell_aliases ]] && source ~/.shell_aliases
 

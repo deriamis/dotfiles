@@ -134,22 +134,6 @@ fi
 
 export PATH MANPATH INFOPATH
 
-# Activate Homebrew
-if [[ -d /opt/homebrew ]]; then
-  export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-  export HOMEBREW_REPOSITORY="/opt/homebrew";
-  PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
-  MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
-  INFOPATH="/opt/homebrew/share/info${INFOPATH+:$INFOPATH}";
-fi
-
-# Add MacPorts to $PATH
-if [[ -d /opt/local ]]; then
-  PATH="/opt/local/bin:/opt/local/sbin:/opt/local/libexec/gnubin${PATH+:$PATH}"
-  MANPATH="/opt/local/share/man${MANPATH+:$MANPATH}"
-  INFOPATH="/opt/local/share/info${INFOPATH+:$INFOPATH}"
-fi
-
 if command -v bat &>/dev/null; then
   export MANPAGER="sh -c 'col -bx | bat -l man -p'"
   export MANROFFOPT="-c"
@@ -222,10 +206,6 @@ fi
 if [[ -d ~/.rd/bin ]]; then
   PATH="${HOME}/.rd/bin:$PATH"
 fi
-
-# Add homedir binaries to $PATH
-[[ -d ~/bin ]] && PATH="$HOME/bin:$PATH"
-[[ -d ~/.local/bin ]] && PATH="$HOME/.local/bin:$PATH"
 
 # Make less more friendly for non-text input files, see lesspipe(1)
 if [[ -x $(which lesspipe.sh) ]]; then
