@@ -124,9 +124,13 @@ if [[ -x /usr/bin/loginctl ]]; then
 fi
 
 # Set up GPG SSH Agent
-export GPG_TTY="$(tty)"
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-gpgconf --launch gpg-agent
+if [[ $(uname -s) == Darwin ]]; then
+  export SSH_AUTH_SOCK="${HOME}/.ssh/agent.sock"
+else
+  export GPG_TTY="$(tty)"
+  export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+  gpgconf --launch gpg-agent
+fi
 
 # Activate Homebrew
 if [[ -d /opt/homebrew ]]; then
