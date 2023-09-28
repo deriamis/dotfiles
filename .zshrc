@@ -189,6 +189,11 @@ if [[ -r ~/.dircolors ]] && command -v dircolors &>/dev/null; then
   _evalcache dircolors -b ~/.dircolors >/dev/null
 fi
 
+# Initialize the Fuzzy Finder
+if [[ -f ~/.fzf.zsh ]]; then
+  source ~/.fzf.zsh
+fi
+
 # Enable iTerm2 integrations
 if [[ -e ~/.iterm2_shell_integration.zsh ]]; then
     source ~/.iterm2_shell_integration.zsh >/dev/null

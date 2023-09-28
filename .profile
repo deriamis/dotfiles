@@ -218,11 +218,6 @@ if [[ -f $HOME/.travis/travis.sh ]]; then
   source $HOME/.travis/travis.sh
 fi
 
-# Initialize the Fuzzy Finder
-if [[ -f ~/.fzf.${SHELL##*/} ]]; then
-  source ~/.fzf.${SHELL##*/}
-fi
-
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 

@@ -166,6 +166,11 @@ if [[ $ENV_ANONYMIZE != 1 ]]; then
       eval "$(dircolors -b ~/.dircolors)"
     fi
 
+    # Initialize the Fuzzy Finder
+    if [[ -f ~/.fzf.bash ]]; then
+      source ~/.fzf.bash
+    fi
+
     # Enable iTerm2 integrations
     if [[ -e ~/.iterm2_shell_integration.bash ]]; then
         source ~/.iterm2_shell_integration.bash
