@@ -1,9 +1,11 @@
 [core]
   editor = vim
-  pager = less -F -XR -x4 -M -i
+  pager = delta
   autocrlf = false
   whitespace = blank-at-eol,blank-at-eof,space-before-tab,-indent-with-non-tab,tab-in-indent,-cr-at-eol
   fileMode = false
+[interactive]
+  diffFilter = delta --color-only --features=interactive
 [alias]
   dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
@@ -53,7 +55,8 @@
   clean = indent
   smudge = cat
 [diff]
-  tool = meld
+  #tool = meld
+  colorMoved = default
 [difftool]
   prompt = false
 [difftool "meld"]
@@ -89,3 +92,11 @@
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [tag]
 	forceSignAnnotated = true
+[include]
+  path = ~/.config/delta/themes.gitconfig
+[delta]
+  features = gruvmax-fang zebra-dark decorations navigation
+  true-color = always
+  line-numbers = true
+  side-by-side = true
+  hyperlinks = true
