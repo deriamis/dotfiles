@@ -174,20 +174,6 @@ if [[ $ENV_ANONYMIZE != 1 ]]; then
         source "${HOME}/.iterm2_shell_integration.bash"
     fi
 
-    # Activate Homebrew
-    if [[ -d /opt/homebrew ]]; then
-      PATH="${PATH}${HOMEBREW_PATH+:$HOMEBREW_PATH}";
-      MANPATH="${MANPATH}${HOMEBREW_MANPATH+:$HOMEBREW_MANPATH}:";
-      INFOPATH="${INFOPATH}${HOMEBREW_INFOPATH+:$HOMEBREW_INFOPATH}";
-    fi
-
-    # Add MacPorts to $PATH
-    if [[ -d /opt/local ]]; then
-      PATH="${PATH}${MACPORTS_PATH+:$MACPORTS_PATH}"
-      MANPATH="${MANPATH}${MACPORTS_MANPATH+:$MACPORTS_MANPATH}"
-      INFOPATH="${INFOPATH}${MACPORTS_INFOPATH+:$MACPORTS_INFOPATH}"
-    fi
-
     # Set up GPG SSH Agent
     if [[ $(uname -s) == Darwin ]]; then
       export SSH_AUTH_SOCK="${HOME}/.ssh/agent.sock"
