@@ -10,30 +10,39 @@ set_title() {
 }
 
 ssh() {
-  set_title $*
+  set_title "$*"
   if [[ $SHELL =~ /?zsh$ ]]; then
-    $(whence -p ssh) -2 $*
+    $(whence -p ssh) -2 "$@"
   else
-    $(which ssh) -2 $*
+    $(which ssh) -2 "$@"
   fi
-  set_title $HOST
+  # shellcheck disable=SC2154
+  set_title "${HOST}"
 }
 
 ciphers() {
-  local OPENSSL=$(which openssl)
+  local OPENSSL
+  local IFS
 
-  local IFS=':'
-  ciphers=( $(${OPENSSL} ciphers 'ALL:eNULL') )
+  OPENSSL=$(which openssl)
+
+  local output_re
+  local cipher
+  local cipher
+
+  IFS=':'
+  read -ra ciphers < <(${OPENSSL} ciphers 'ALL:eNULL')
   unset IFS
 
   for cipher in "${ciphers[@]}"; do
     echo -n "Testing ${cipher}... "
 
     local IFS=$'\n'
-    result=( $(openssl s_client -cipher "${cipher}" -connect ${1:-localhost}:${2:-443} 2>&1 < /dev/null) )
+    read -ra result < <(openssl s_client -cipher "${cipher}" -connect "${1:-localhost}:${2:-443}" 2>&1 < /dev/null)
     unset IFS
 
-    if [[ "${result[*]}" =~ "Cipher is ${cipher}" ]]; then
+    output_re="Cipher is ${cipher}"
+    if [[ ${result[*]} =~ ${output_re} ]]; then
       echo "YES"
     elif [[ "${result[*]}" =~ ":error:" ]]; then
       error=$(cut -d: -f6 <<< "${result[1]}")
@@ -50,7 +59,6 @@ tapme() {
   #   tapme sleep 10
   declare -a notify_cmd
   declare -a icons
-  local status
   local icon
   local logfile
   local message
@@ -113,46 +121,47 @@ tapme() {
 esac
 
   "${notify_cmd[@]}" || true
-  return ${res}
+  return "${res}"
 }
 
 # Add some XDG_* variables that don't get set
 if [[ -x /usr/bin/loginctl ]]; then
-  export XDG_SESSION_ID=$(loginctl -l -P Sessions show-user "${USER}")
-  export XDG_VTNR=$(loginctl -l -P VTNr show-session ${XDG_SESSION_ID})
-  export XDG_SEAT=$(loginctl -l -P Seat show-session ${XDG_SESSION_ID})
+  XDG_SESSION_ID=$(loginctl -l -P Sessions show-user "${USER}")
+  XDG_VTNR=$(loginctl -l -P VTNr show-session "${XDG_SESSION_ID}")
+  XDG_SEAT=$(loginctl -l -P Seat show-session "${XDG_SESSION_ID}")
+  export XDG_SESSION_ID XDG_VTNR XDG_SEAT
 fi
 
-# Set up GPG SSH Agent
-if [[ $(uname -s) == Darwin ]]; then
-  export SSH_AUTH_SOCK="${HOME}/.ssh/agent.sock"
-else
-  export GPG_TTY="$(tty)"
-  export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-  gpgconf --launch gpg-agent
+# Activate Homebrew
+if [[ -d /opt/homebrew ]]; then
+  HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+  HOMEBREW_REPOSITORY="/opt/homebrew";
+  HOMEBREW_PATH="/opt/homebrew/bin:/opt/homebrew/sbin";
+  HOMEBREW_MANPATH="/opt/homebrew/share/man";
+  HOMEBREW_INFOPATH="/opt/homebrew/share/info";
+  export HOMEBREW_CELLAR HOMEBREW_REPOSITORY HOMEBREW_PATH HOMEBREW_MANPATH HOMEBREW_INFOPATH
 fi
 
-export PATH MANPATH INFOPATH
-
-if command -v bat &>/dev/null; then
-  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-  export MANROFFOPT="-c"
-  help() {
-    "$@" --help 2&>1 | bat --plain --language=help
-  }
+# Add MacPorts to $PATH
+if [[ -d /opt/local ]]; then
+  MACPORTS_PATH="/opt/local/bin:/opt/local/sbin:/opt/local/libexec/gnubin"
+  MACPORTS_MANPATH="/opt/local/share/man"
+  MACPORTS_INFOPATH="/opt/local/share/info"
+  export MACPORTS_PATH MACPORTS_MANPATH MACPORTS_INFOPATH
 fi
 
-# Add .NET to $PATH
-if [[ -d /opt/local/share/dotnet ]]; then
-  export DOTNET_ROOT="/opt/local/share/dotnet"
-fi
-if [[ -d ~/.dotnet/tools ]]; then
-  PATH="${HOME}/.dotnet/tools:$PATH"
+# colored GCC warnings and errors
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# Add Android SDK to $PATH
+if [[ -d ~/.local/share/android_sdk/cmdline-tools/latest ]]; then
+  export ANDROID_HOME=~/.local/share/android_sdk
+  PATH="${HOME}/.local/share/android_sdk/cmdline-tools/latest/bin:${PATH}"
 fi
 
 # Set up Yarn packager for NPM
 if [[ -d ~/.config/yarn/global/node_modules/.bin ]]; then
-  PATH="$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+  PATH="$HOME/.config/yarn/global/node_modules/.bin:${PATH}"
 fi
 if [[ -d ~/.yarn/bin ]]; then
   PATH="$HOME/.yarn/bin:$PATH"
@@ -165,28 +174,12 @@ fi
 
 # Set up cargo for Rust
 if [[ -d ~/.cargo ]]; then
-  source ~/.cargo/env
-fi
-
-# Set up the GO programming language
-if command -v go &>/dev/null; then
-  export GOPATH="${HOME}/go"
-  export GOBIN="${HOME}/.local/share/go/bin"
-  [[ -d ${GOPATH}/bin ]] && PATH="${GOPATH}/bin:${PATH}"
-  [[ -d ${GOBIN} ]] && PATH="${GOBIN}:${PATH}"
+  source "${HOME}/.cargo/env"
 fi
 
 # Set up Roswell lisp scripting environment
 if [[ -d ~/.roswell/bin ]] && command -v ros &>/dev/null; then
   PATH="${HOME}/.roswell/bin:${PATH}"
-fi
-
-# Set up the OCaml programming language
-if command -v opam &>/dev/null; then
-  export OPAM_SWITCH_PREFIX='/Users/deriamis/.opam/default'
-  export CAML_LD_LIBRARY_PATH='/Users/deriamis/.opam/default/lib/stublibs:/Users/deriamis/.opam/default/lib/ocaml/stublibs:/Users/deriamis/.opam/default/lib/ocaml'
-  export OCAML_TOPLEVEL_PATH='/Users/deriamis/.opam/default/lib/toplevel'
-  PATH="/Users/deriamis/.opam/default/bin${PATH+:$PATH}"
 fi
 
 # Set up Haskell
@@ -207,21 +200,11 @@ if [[ -d ~/.rd/bin ]]; then
   PATH="${HOME}/.rd/bin:$PATH"
 fi
 
-# Make less more friendly for non-text input files, see lesspipe(1)
-if [[ -x $(which lesspipe.sh) ]]; then
-  export LESSOPEN="|/opt/local/bin/lesspipe.sh %s"
-  export LESS_ADVANCED_PREPROCESSOR=1
-fi
-
 # Set up the Travis gem
-if [[ -f $HOME/.travis/travis.sh ]]; then
-  source $HOME/.travis/travis.sh
+if [[ -f ${HOME}/.travis/travis.sh ]]; then
+  source "${HOME}/.travis/travis.sh"
 fi
 
-# colored GCC warnings and errors
-export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
-if [[ -e ~/.private_env ]]; then
-  source ~/.private_env
+if [[ -e ${HOME}/.private_env ]]; then
+  source "${HOME}/.private_env"
 fi
-

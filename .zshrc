@@ -73,36 +73,28 @@ source $zsh_plugins
 
 # Drop-to-bash when needed
 bash() {
-    env -i \
-        ENV_ANONYMIZE=1 \
-        HOME="$HOME" \
-        LC_CTYPE="${LC_ALL:-${LC_CTYPE:-$LANG}}" \
-        PATH="/usr/local/bin:/usr/bin" \
-        USER="$USER" \
-        SHELL="$(whence -p bash)" \
-        SHLVL=$(( SHLVL - 1 )) \
-        $(whence -p bash) "$@"
-    }
+  env -i \
+      ENV_ANONYMIZE=1 \
+      HOME="${HOME}" \
+      LC_CTYPE="${LC_ALL:-${LC_CTYPE:-$LANG}}" \
+      PATH="/usr/local/bin:/usr/bin${_PATH+:$_PATH}" \
+      MANPATH="/usr/share/man:/usr/local/share/man${_MANPATH+:$_MANPATH}:" \
+      INFOPATH="/usr/share/info:/usr/local/share/info${_INFOPATH+:$_INFOPATH}" \
+      USER="${USER}" \
+      SHELL="$(whence -p bash)" \
+      SHLVL=$(( SHLVL - 1 )) \
+      TERM="${TERM}" \
+      $(whence -p bash) "$@"
+}
 
-# Activate Homebrew
-if [[ -d /opt/homebrew ]]; then
-  export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-  export HOMEBREW_REPOSITORY="/opt/homebrew";
-  PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
-  MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
-  INFOPATH="/opt/homebrew/share/info${INFOPATH+:$INFOPATH}";
-fi
-
-# Add MacPorts to $PATH
-if [[ -d /opt/local ]]; then
-  PATH="/opt/local/bin:/opt/local/sbin:/opt/local/libexec/gnubin${PATH+:$PATH}"
-  MANPATH="/opt/local/share/man${MANPATH+:$MANPATH}"
-  INFOPATH="/opt/local/share/info${INFOPATH+:$INFOPATH}"
-fi
+# Add homedir binaries to $PATH
+[[ -d ~/bin ]] && PATH="$HOME/bin:$PATH"
+[[ -d ~/.local/bin ]] && PATH="$HOME/.local/bin:$PATH"
 
 # Set up RTX (Python, Ruby, Node.js)
 if command -v rtx &>/dev/null; then
   _evalcache rtx activate zsh >/dev/null
+  _evalcache rtx completion zsh >/dev/null
 
   # Ruby programming language
   if rtx which ruby &>/dev/null; then
@@ -116,9 +108,22 @@ if command -v rtx &>/dev/null; then
     fi
   fi
 
+  # Set up the GO programming language
+  if rtx which go &>/dev/null; then
+    export GOPATH="${HOME}/go"
+    export GOBIN="${HOME}/.local/share/go/bin"
+    [[ -d ${GOPATH}/bin ]] && PATH="${GOPATH}/bin:${PATH}"
+    [[ -d ${GOBIN} ]] && PATH="${GOBIN}:${PATH}"
+  fi
+
   # Erlang
   if rtx which erl &>/dev/null; then
     export KERL_BUILD_DOCS=yes
+  fi
+
+  # NeoVim
+  if rtx which nvim &>/dev/null; then
+    alias vim='nvim'
   fi
 
 # Set up ASDF (Python, Ruby, Node.js)
@@ -152,11 +157,6 @@ fi
 if command -v oh-my-posh &>/dev/null; then
     _evalcache oh-my-posh init zsh --config ~/.poshthemes/powerlevel10k_poweruser.omp.json >/dev/null
     _evalcache oh-my-posh completion zsh >/dev/null
-fi
-
-# Load rtx completions
-if command -v rtx &>/dev/null; then
-    _evalcache rtx completion zsh >/dev/null
 fi
 
 # Load lefthook completions
@@ -199,9 +199,79 @@ if [[ -e ~/.iterm2_shell_integration.zsh ]]; then
     source ~/.iterm2_shell_integration.zsh >/dev/null
 fi
 
-# Add homedir binaries to $PATH
-[[ -d ~/bin ]] && PATH="$HOME/bin:$PATH"
-[[ -d ~/.local/bin ]] && PATH="$HOME/.local/bin:$PATH"
+# Activate Homebrew
+if [[ -d /opt/homebrew ]]; then
+  PATH="${PATH}${HOMEBREW_PATH+:$HOMEBREW_PATH}";
+  MANPATH="${MANPATH}${HOMEBREW_MANPATH+:$HOMEBREW_MANPATH}";
+  INFOPATH="${INFOPATH}${HOMEBREW_INFOPATH+:$HOMEBREW_INFOPATH}";
+fi
 
-[[ -r ~/.shell_aliases ]] && source ~/.shell_aliases
+# Add MacPorts to $PATH
+if [[ -d /opt/local ]]; then
+  PATH="${PATH}${MACPORTS_PATH+:$MACPORTS_PATH}"
+  MANPATH="${MANPATH}${MACPORTS_MANPATH+:$MACPORTS_MANPATH}"
+  INFOPATH="${INFOPATH}${MACPORTS_INFOPATH+:$MACPORTS_INFOPATH}"
+fi
 
+# Set up GPG SSH Agent
+if [[ $(uname -s) == Darwin ]]; then
+  export SSH_AUTH_SOCK="${HOME}/.ssh/agent.sock"
+else
+  GPG_TTY="$(tty)"
+  SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+  export GPG_TTY SSH_AUTH_SOCK
+  gpgconf --launch gpg-agent
+fi
+
+# Set up Teleport
+if command -v tsh &>/dev/null; then
+  export TELEPORT_ADD_KEYS_TO_AGENT=no
+fi
+
+# Add .NET to $PATH
+if command -v dotnet &>/dev/null; then
+  DOTNET_BIN=$(which dotnet)
+  export DOTNET_ROOT="${DOTNET_BIN%/bin/*}"
+  if [[ -d ~/.dotnet/tools ]]; then
+    PATH="${HOME}/.dotnet/tools:${PATH}"
+  fi
+fi
+
+# Set up the OCaml programming language
+if command -v opam &>/dev/null; then
+  export OPAM_SWITCH_PREFIX='/Users/deriamis/.opam/default'
+  export CAML_LD_LIBRARY_PATH='/Users/deriamis/.opam/default/lib/stublibs:/Users/deriamis/.opam/default/lib/ocaml/stublibs:/Users/deriamis/.opam/default/lib/ocaml'
+  export OCAML_TOPLEVEL_PATH='/Users/deriamis/.opam/default/lib/toplevel'
+  PATH="/Users/deriamis/.opam/default/bin${PATH+:$PATH}"
+fi
+
+# Make less more friendly for non-text input files, see lesspipe(1)
+if [[ -x $(which lesspipe.sh) ]]; then
+  LESSOPEN="|$(which lesspipe.sh) %s"
+  LESS_ADVANCED_PREPROCESSOR=1
+  export LESSOPEN LESS_ADVANCED_PREPROCESSOR
+fi
+
+if command -v bat &>/dev/null; then
+  function help() {
+    if [[ -z $* ]]; then
+      run-help
+      return $?
+    fi
+    "$@" --help 2>&1 | bat --plain --language=help
+  }
+  unalias help &>/dev/null
+fi
+
+if command -v batman &>/dev/null; then
+  alias man='batman'
+  export MANROFFOPT="-c"
+fi
+
+if [[ -r ${HOME}/.custom_env ]]; then
+  source "${HOME}/.custom_env"
+fi
+
+if [[ -r ~/.shell_aliases ]]; then
+  source ~/.shell_aliases
+fi
