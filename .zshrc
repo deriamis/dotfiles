@@ -232,7 +232,9 @@ if command -v opam &>/dev/null; then
 fi
 
 # Make less more friendly for non-text input files, see lesspipe(1)
-if [[ -x $(which lesspipe.sh) ]]; then
+if command -v batpipe &>/dev/null; then
+  _evalcache batpipe
+elif [[ -x $(which lesspipe.sh) ]]; then
   LESSOPEN="|$(which lesspipe.sh) %s"
   LESS_ADVANCED_PREPROCESSOR=1
   export LESSOPEN LESS_ADVANCED_PREPROCESSOR
@@ -250,7 +252,6 @@ if command -v bat &>/dev/null; then
 fi
 
 if command -v batman &>/dev/null; then
-  alias man='batman'
   export MANROFFOPT="-c"
 fi
 

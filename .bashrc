@@ -207,7 +207,9 @@ if [[ $ENV_ANONYMIZE != 1 ]]; then
     fi
 
     # Make less more friendly for non-text input files, see lesspipe(1)
-    if [[ -x $(which lesspipe.sh) ]]; then
+    if command -v batpipe &>/dev/null; then
+        eval "$(batpipe)"
+    elif [[ -x $(which lesspipe.sh) ]]; then
       LESSOPEN="|$(which lesspipe.sh) %s"
       LESS_ADVANCED_PREPROCESSOR=1
       export LESSOPEN LESS_ADVANCED_PREPROCESSOR

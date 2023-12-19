@@ -4,9 +4,6 @@ if command -v batdiff &>/dev/null; then
 elif command -v colordiff &>/dev/null; then
   alias diff='colordiff'
 fi
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
 alias more='less'
 alias df='df -h'
 alias du='du -c -h'
@@ -19,6 +16,20 @@ alias emacs='emacsclient '
 
 if command -v bat &>/dev/null; then
   alias cat='bat'
+fi
+if command -v batman &>/dev/null; then
+  alias man='batman'
+fi
+if command -v batgrep &>/dev/null; then
+  alias grep='batgrep'
+  alias fgrep='batgrep -F'
+  alias egrep='batgrep'
+  alias pgrep='bargrep -P'
+else
+  alias grep='grep --color=auto'
+  alias fgrep='fgrep --color=auto'
+  alias egrep='egrep --color=auto'
+  alias pgrep='pgrep --color=auto'
 fi
 
 # New command aliases
