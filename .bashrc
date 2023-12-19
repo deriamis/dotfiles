@@ -101,6 +101,12 @@ if [[ $ENV_ANONYMIZE != 1 ]]; then
         alias vim='nvim'
       fi
 
+      # Load Angular CLI completions
+      if rtx which ng &>/dev/null; then
+        # shellcheck disable=SC1090
+        source <(rtx exec node -- ng completion script)
+      fi
+
     # Set up ASDF (Python, Ruby, Node.js)
     elif [[ -e ${HOME}/.asdf/asdf.sh ]]; then
         source "${HOME}/.asdf/asdf.sh"

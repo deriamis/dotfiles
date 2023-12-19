@@ -126,6 +126,11 @@ if command -v rtx &>/dev/null; then
     alias vim='nvim'
   fi
 
+  # Load Angular CLI completions
+  if rtx which ng &>/dev/null; then
+    _evalcache rtx exec node -- ng completion script >/dev/null
+  fi
+
 # Set up ASDF (Python, Ruby, Node.js)
 elif [[ -e ~/.asdf/asdf.sh ]]; then
   source ~/.asdf/asdf.sh
@@ -262,3 +267,4 @@ fi
 if [[ -r ~/.shell_aliases ]]; then
   source ~/.shell_aliases
 fi
+
