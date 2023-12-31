@@ -63,7 +63,8 @@
   trustExitCode = true
   cmd = open -Wa Meld --args \"$LOCAL\" \"$PWD/$REMOTE\"
 [merge]
-  tool = meld
+  #tool = meld
+  tool = ediff
   conflictstyle = diff3
   renamelimit = 11412
 [mergetool]
@@ -72,6 +73,8 @@
 [mergetool "meld"]
   trustExitCode = true
   cmd = open -Wa Meld --args --auto-merge \"$PWD/$LOCAL\" \"$PWD/$BASE\" \"$PWD/$REMOTE\" --output=\"$PWD/$MERGED\"
+[mergetool "ediff"]
+  cmd = emacsclient -c -a \"\"  --eval \"(ediff-merge-files-with-ancestor \\\"$LOCAL\\\" \\\"$REMOTE\\\" \\\"$BASE\\\" nil \\\"$MERGED\\\")\"
 [push]
   default = simple
 [receive]
