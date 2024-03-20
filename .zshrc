@@ -71,6 +71,9 @@ fi
 # Initialize antidote
 source $zsh_plugins
 
+# Communicate with Emacs vterm to keep the current directory updated
+hooks-add-hook chpwd_hook vterm_set_directory
+
 # Drop-to-bash when needed
 bash() {
   env -i \
@@ -91,25 +94,25 @@ bash() {
 [[ -d ~/bin ]] && PATH="$HOME/bin:$PATH"
 [[ -d ~/.local/bin ]] && PATH="$HOME/.local/bin:$PATH"
 
-# Set up RTX (Python, Ruby, Node.js)
-if command -v rtx &>/dev/null; then
-  _evalcache rtx activate zsh >/dev/null
-  _evalcache rtx completion zsh >/dev/null
+# Set up mise (Python, Ruby, Node.js)
+if command -v mise &>/dev/null; then
+  _evalcache mise activate zsh >/dev/null
+  _evalcache mise completion zsh >/dev/null
 
   # Ruby programming language
-  if rtx which ruby &>/dev/null; then
+  if mise which ruby &>/dev/null; then
       PATH="$(gem env | grep 'USER INSTALLATION DIRECTORY' | /usr/bin/awk -F': ' '{print $2}')/bin:$PATH"
   fi
 
   # Perl programming language
-  if rtx which perl &>/dev/null; then
+  if mise which perl &>/dev/null; then
     if perl -e "use local::lib" &>/dev/null; then
       _evalcache perl -I ~/perl5/lib/perl5/ -Mlocal::lib >/dev/null
     fi
   fi
 
   # Set up the GO programming language
-  if rtx which go &>/dev/null; then
+  if mise which go &>/dev/null; then
     export GOPATH="${HOME}/go"
     export GOBIN="${HOME}/.local/share/go/bin"
     [[ -d ${GOPATH}/bin ]] && PATH="${GOPATH}/bin:${PATH}"
@@ -117,18 +120,18 @@ if command -v rtx &>/dev/null; then
   fi
 
   # Erlang
-  if rtx which erl &>/dev/null; then
+  if mise which erl &>/dev/null; then
     export KERL_BUILD_DOCS=yes
   fi
 
   # NeoVim
-  if rtx which nvim &>/dev/null; then
+  if mise which nvim &>/dev/null; then
     alias vim='nvim'
   fi
 
   # Load Angular CLI completions
-  if rtx which ng &>/dev/null; then
-    _evalcache rtx exec node -- ng completion script >/dev/null
+  if mise which ng &>/dev/null; then
+    _evalcache mise exec node -- ng completion script >/dev/null
   fi
 
 # Set up ASDF (Python, Ruby, Node.js)
@@ -160,8 +163,14 @@ fi
 
 # Load oh-my-posh
 if command -v oh-my-posh &>/dev/null; then
+    export ITERM2_SQUELCH_MARK=1
     _evalcache oh-my-posh init zsh --config ~/.poshthemes/powerlevel10k_poweruser.omp.json >/dev/null
     _evalcache oh-my-posh completion zsh >/dev/null
+fi
+
+# Enable iTerm2 integrations
+if [[ -e ~/.iterm2_shell_integration.zsh ]]; then
+    source ~/.iterm2_shell_integration.zsh >/dev/null
 fi
 
 # Load lefthook completions
@@ -197,11 +206,6 @@ fi
 # Initialize the Fuzzy Finder
 if [[ -f ~/.fzf.zsh ]]; then
   source ~/.fzf.zsh
-fi
-
-# Enable iTerm2 integrations
-if [[ -e ~/.iterm2_shell_integration.zsh ]]; then
-    source ~/.iterm2_shell_integration.zsh >/dev/null
 fi
 
 # Set up GPG SSH Agent

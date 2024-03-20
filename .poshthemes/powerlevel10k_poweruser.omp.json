@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
   "version": 2,
   "final_space": true,
-  "console_title_template": "{{if .Root}}root :: {{end}}{{.Shell}} :: {{.Folder}}",
+  "console_title_template": "{{ if .Root }}root@{{ end }}{{ .HostName }} :: {{ .Shell }} :: {{ .Folder }}",
   "blocks": [
     {
       "type": "rprompt",
@@ -101,6 +101,13 @@
       "type": "prompt",
       "alignment": "left",
       "segments": [
+        {
+          "type": "iterm",
+          "interactive": true,
+          "style": "plain",
+          "foreground": "#80ffea",
+          "template": "{{ .PromptMark }}"
+        },
         {
           "type": "os",
           "style": "diamond",

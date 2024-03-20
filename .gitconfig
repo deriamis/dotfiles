@@ -1,15 +1,11 @@
-[core]
-  editor = vim
-  pager = delta
-  autocrlf = false
-  whitespace = blank-at-eol,blank-at-eof,space-before-tab,-indent-with-non-tab,tab-in-indent,-cr-at-eol
-  fileMode = false
-[interactive]
-  diffFilter = delta --color-only --features=interactive
+[advice]
+  pushNonFastForward = false
+  statusHints = false
+
 [alias]
   dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-  lc = log --decorate --color --oneline --branches --remotes=backup --not --remotes 
+  lc = log --decorate --color --oneline --branches --remotes=backup --not --remotes
   st = status
   ts = status
   ci = commit
@@ -20,86 +16,135 @@
   diffstat = diff -w --ignore-space-at-eol --stat -r
   logme = log --author='$USER' --since='2 weeks ago'
   distclean = clean -f -d -x
+
+[branch]
+  autosetupmerge = true
+
+[commit]
+	gpgSign = true
+
+[core]
+  editor = emacs -nw
+  #editor = vim
+  pager = delta
+  autocrlf = false
+  whitespace = blank-at-eol,blank-at-eof,space-before-tab,-indent-with-non-tab,tab-in-indent,-cr-at-eol
+  fileMode = false
+
 [color]
   branch = auto
   diff = auto
   status = auto
   ui = auto
+
 [color "branch"]
   current = yellow reverse
   local = yellow
   remote = green
+
 [color "diff"]
   meta = yellow bold
   frag = magenta bold
   old = red bold
   new = green bold
   whitespace = red reverse
+
+[color "grep"]
+  filename = bold yellow reverse
+  linenumber = magenta bold
+  match = green reverse bold
+  separator = red bold
+  selected = white bold
+  context = black
+  function = red
+
 [color "status"]
   added = yellow
   changed = green
   untracked = cyan
-[filter "spacify"]
-  clean = expand --initial -t 4
-  smudge = expand --initial -t 4
-  required
-[filter "spaces2tabs"]
-  clean = unexpand --first-only -t 4
-  smudge = expand --initial -t 4
-  required
-[filter "tabs2spaces"]
-  clean = expand --initial -t 4
-  smudge = unexpand --first-only -t 4
-  required
-[filter "indent"]
-  clean = indent
-  smudge = cat
-[diff]
-  #tool = meld
-  colorMoved = default
-[difftool]
-  prompt = false
-[difftool "meld"]
-  trustExitCode = true
-  cmd = open -Wa Meld --args \"$LOCAL\" \"$PWD/$REMOTE\"
-[merge]
-  #tool = meld
-  tool = ediff
-  conflictstyle = diff3
-  renamelimit = 11412
-[mergetool]
-  prompt = false
-  keepBackup = false
-[mergetool "meld"]
-  trustExitCode = true
-  cmd = open -Wa Meld --args --auto-merge \"$PWD/$LOCAL\" \"$PWD/$BASE\" \"$PWD/$REMOTE\" --output=\"$PWD/$MERGED\"
-[mergetool "ediff"]
-  cmd = emacsclient -c -a \"\"  --eval \"(ediff-merge-files-with-ancestor \\\"$LOCAL\\\" \\\"$REMOTE\\\" \\\"$BASE\\\" nil \\\"$MERGED\\\")\"
-[push]
-  default = simple
-[receive]
-  denyCurrentBranch = warn
-[branch]
-  autosetupmerge = true
-[pull]
-  rebase = true
-[init]
-  defaultBranch = main
-[commit]
-	gpgSign = true
+
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
+
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
-[tag]
-	forceSignAnnotated = true
-[include]
-  path = ~/.config/delta/themes.gitconfig
+
 [delta]
   features = gruvmax-fang zebra-dark decorations navigation
   true-color = always
   line-numbers = true
   side-by-side = true
   hyperlinks = true
+
+[delta "interactive"]
+    keep-plus-minus-markers = false
+
+[delta "decorations"]
+	commit-style = raw
+
+[diff]
+  colorMoved = default
+
+[difftool]
+  prompt = false
+
+[filter "indent"]
+  clean = indent
+  smudge = cat
+
+[filter "lfs"]
+  required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+
+[filter "spacify"]
+  clean = expand --initial -t 4
+  smudge = expand --initial -t 4
+  required
+
+[filter "spaces2tabs"]
+  clean = unexpand --first-only -t 4
+  smudge = expand --initial -t 4
+  required
+
+[filter "tabs2spaces"]
+  clean = expand --initial -t 4
+  smudge = unexpand --first-only -t 4
+  required
+
+[include]
+  path = ~/.config/delta/themes.gitconfig
+
+[init]
+  defaultBranch = main
+
+[interactive]
+  diffFilter = delta --color-only --features=interactive
+
+[merge]
+  tool = ediff
+  conflictstyle = diff3
+  renamelimit = 11412
+
+[mergetool]
+  prompt = false
+  keepBackup = false
+
+[mergetool "ediff"]
+  cmd = emacs -nw --eval \"(ediff-merge-files-with-ancestor \\\"$LOCAL\\\" \\\"$REMOTE\\\" \\\"$BASE\\\" nil \\\"$MERGED\\\")\"
+
+[pull]
+  rebase = true
+
+[push]
+  default = simple
+
+[receive]
+  denyCurrentBranch = warn
+
+[tag]
+	forceSignAnnotated = true
+	sort = -v:refname

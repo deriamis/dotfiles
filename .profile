@@ -1,3 +1,10 @@
+# On recent versions of Mac, the new multithreading restrictions are absolutely
+# monstrous. We have to disable the safety features if we want to remain sane.
+if [[ $(uname -s) == Darwin ]]; then
+  OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+  export OBJC_DISABLE_INITIALIZE_FORK_SAFETY
+fi
+
 # Ensure we always have a minimal TERM set
 if [[ -z $TERM ]]; then
   export TERM=xterm-256color
@@ -5,8 +12,57 @@ if [[ -z $TERM ]]; then
 fi
 
 # Utility functions
+if [[ ${INSIDE_EMACS} == 'vterm' ]]; then
+  vterm_printf() {
+    if [[ -n ${TMUX} && ( ${TERM%%-*} == tmux || ${TERM%%-*} == screen ) ]]; then
+          # Tell tmux to pass the escape sequences through
+          printf "\ePtmux;\e\e]%s\007\e\\" "$1"
+      elif [[ ${TERM%%-*} == screen ]]; then
+          # GNU screen (screen, screen-256color, screen-256color-bce)
+          printf "\eP\e]%s\007\e\\" "$1"
+      else
+          printf "\e]%s\e\\" "$1"
+      fi
+  }
+
+  vterm_cmd() {
+      local vterm_elisp
+      vterm_elisp=""
+      while (( $# > 0 )); do
+          vterm_elisp="$vterm_elisp""$(printf '"%s" ' "$(printf "%s" "$1" | sed -e 's|\\|\\\\|g' -e 's|"|\\"|g')")"
+          shift
+      done
+      vterm_printf "51;E$vterm_elisp"
+  }
+
+  find_file() {
+      vterm_cmd find-file "$(realpath "${@:-.}")"
+  }
+
+  say() {
+      vterm_cmd message "%s" "$*"
+  }
+
+  clear_scrollback() {
+    vterm_vmd clear_scrollback
+    tput clear
+  }
+
+  vterm_set_directory() {
+    if [[ -n ${SSH_CLIENT} || -n ${SSH_TTY} ]]; then
+      vterm_cmd update-pwd "/-:""$USER""@""$HOSTNAME"":""$PWD/"
+    else
+        vterm_cmd update-pwd "$PWD/"
+    fi
+  }
+fi
+
 set_title() {
-  echo -e "\e]0;$*\007"
+  if [[ $SHELL =~ /?zsh$ ]]; then
+    print -Pn "\e]2;$*:%2~\a"
+  else
+    echo -e "\e]0;$*\007"
+  fi
 }
 
 ssh() {
@@ -124,6 +180,8 @@ esac
   return "${res}"
 }
 
+MISE_PATH="${HOME}/.local/share/mise/bin"
+
 # Add some XDG_* variables that don't get set
 if [[ -x /usr/bin/loginctl ]]; then
   XDG_SESSION_ID=$(loginctl -l -P Sessions show-user "${USER}")
@@ -134,12 +192,13 @@ fi
 
 # Activate Homebrew
 if [[ -d /opt/homebrew ]]; then
-  HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-  HOMEBREW_REPOSITORY="/opt/homebrew";
-  HOMEBREW_PATH="/opt/homebrew/bin:/opt/homebrew/sbin";
-  HOMEBREW_MANPATH="/opt/homebrew/share/man";
-  HOMEBREW_INFOPATH="/opt/homebrew/share/info";
-  export HOMEBREW_CELLAR HOMEBREW_REPOSITORY HOMEBREW_PATH HOMEBREW_MANPATH HOMEBREW_INFOPATH
+  HOMEBREW_PREFIX="/opt/homebrew";
+  HOMEBREW_CELLAR="${HOMEBREW_PREFIX}/Cellar";
+  HOMEBREW_REPOSITORY="${HOMEBREW_PREFIX}";
+  HOMEBREW_PATH="${HOMEBREW_PREFIX}/bin:${HOMEBREW_PREFIX}/sbin";
+  HOMEBREW_MANPATH="${HOMEBREW_PREFIX}/share/man";
+  HOMEBREW_INFOPATH="${HOMEBREW_PREFIX}/share/info";
+  export HOMEBREW_PREFIX HOMEBREW_CELLAR HOMEBREW_REPOSITORY HOMEBREW_PATH HOMEBREW_MANPATH HOMEBREW_INFOPATH
 fi
 
 # Add MacPorts to $PATH
@@ -150,7 +209,7 @@ if [[ -d /opt/local ]]; then
   export MACPORTS_PATH MACPORTS_MANPATH MACPORTS_INFOPATH
 fi
 
-PATH="${MACPORTS_PATH+:$MACPORTS_PATH}${HOMEBREW_PATH+:$HOMEBREW_PATH}${PATH+:$PATH}"
+PATH="${MISE_PATH}:${MACPORTS_PATH+:$MACPORTS_PATH}${HOMEBREW_PATH+:$HOMEBREW_PATH}${PATH+:$PATH}"
 MANPATH="${MACPORTS_MANPATH+:$MACPORTS_MANPATH}${HOMEBREW_MANPATH+:$HOMEBREW_MANPATH}${MANPATH+:$MANPATH}"
 INFOPATH="${MACPORTS_INFOPATH+:$MACPORTS_INFOPATH}${HOMEBREW_INFOPATH+:$HOMEBREW_INFOPATH}${INFOPATH+:$INFOPATH}"
 
@@ -204,9 +263,28 @@ if [[ -d ~/.rd/bin ]]; then
   PATH="${HOME}/.rd/bin:$PATH"
 fi
 
+# Add kubectl-krew to PATH
+if [[ -d ~/.krew/bin ]]; then
+  PATH="${HOME}/.krew/bin:${PATH}"
+fi
+
 # Set up the Travis gem
 if [[ -f ${HOME}/.travis/travis.sh ]]; then
   source "${HOME}/.travis/travis.sh"
+fi
+
+# Configure VTerm scrollback clearing
+if [[ $SHELL =~ /?zsh$ ]]; then
+  if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+    alias clear='vterm_printf "51;Evterm-clear-scrollback";tput clear'
+  fi
+else
+  if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+    function clear() {
+        vterm_printf "51;Evterm-clear-scrollback";
+        tput clear;
+    }
+  fi
 fi
 
 if [[ -e ${HOME}/.private_env ]]; then
