@@ -184,15 +184,13 @@ if [[ $ENV_ANONYMIZE != 1 ]]; then
     fi
 
     # Set up GPG SSH Agent
-    if [[ -z ${SSH_AUTH_SOCK} ]]; then
-      if [[ $(uname -s) == Darwin ]]; then
-        export SSH_AUTH_SOCK="${HOME}/.ssh/agent.sock"
-      else
-        GPG_TTY="$(tty)"
-        SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-        export GPG_TTY SSH_AUTH_SOCK
-        gpgconf --launch gpg-agent
-      fi
+    if [[ $(uname -s) == Darwin ]]; then
+      export SSH_AUTH_SOCK="${HOME}/.ssh/agent.sock"
+    elif [[ -z ${SSH_AUTH_SOCK} ]]; then
+      GPG_TTY="$(tty)"
+      SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+      export GPG_TTY SSH_AUTH_SOCK
+      gpgconf --launch gpg-agent
     fi
 
     # Set up Teleport
